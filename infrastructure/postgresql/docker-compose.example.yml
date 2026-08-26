@@ -1,0 +1,10 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: project-postgres
+    environment:
+      POSTGRES_DB: projectdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: YOUR_POSTGRES_PASSWORD
+    ports:
+      - "5432:5432"
