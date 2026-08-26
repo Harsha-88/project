@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.gradle/
+
+# Build output
+build/
+dist/
+.next/
+coverage/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Secrets / environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Runtime / local data
+*.pid
+*.tmp
+apps/auth-service/src/main/resources/application.properties
+infrastructure/postgresql/docker-compose.yml
+.pnpm-store/
