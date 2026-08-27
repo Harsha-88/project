@@ -11,7 +11,7 @@ import { AuthGrpcService } from './auth.grpc.service';
         transport: Transport.GRPC,
         options: {
           package: 'auth',
-          protoPath: join(process.cwd(), '../../proto/auth.proto'),
+          protoPath: join(__dirname, '../../../../proto/auth.proto'),
           url: 'localhost:50051',
         },
       },
