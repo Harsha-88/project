@@ -27,3 +27,4 @@ coverage/
 apps/auth-service/src/main/resources/application.properties
 infrastructure/postgresql/docker-compose.yml
 .pnpm-store/
+.turbo/
