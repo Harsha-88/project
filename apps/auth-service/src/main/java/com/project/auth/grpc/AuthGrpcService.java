@@ -5,6 +5,7 @@ import auth.AuthServiceGrpc;
 import com.project.auth.entity.User;
 import com.project.auth.repository.UserRepository;
 import com.project.auth.session.SessionService;
+import com.project.auth.kafka.AuthEvent;
 import com.project.auth.kafka.AuthEventProducer;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -79,7 +81,14 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
 
             // Publish signup event
             authEventProducer.publish(
-                    "SIGNUP_SUCCESS:" + user.getEmail()
+                    new AuthEvent(
+                            "USER_SIGNUP_SUCCESS",
+                            user.getId(),
+                            user.getEmail(),
+                            Instant.now(),
+                            "auth-service",
+                            "v1"
+                    )
             );
 
             // Successful response
@@ -165,7 +174,14 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
 
             // Publish login event
             authEventProducer.publish(
-                    "LOGIN_SUCCESS:" + user.getEmail()
+                    new AuthEvent(
+                            "USER_LOGIN_SUCCESS",
+                            user.getId(),
+                            user.getEmail(),
+                            Instant.now(),
+                            "auth-service",
+                            "v1"
+                    )
             );
 
             // Successful response
