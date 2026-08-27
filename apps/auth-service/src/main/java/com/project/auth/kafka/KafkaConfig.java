@@ -20,7 +20,7 @@ public class KafkaConfig {
 
         config.put(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                "localhost:9092"
+                System.getenv().getOrDefault("KAFKA_BROKERS", "localhost:9092")
         );
         config.put(
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,

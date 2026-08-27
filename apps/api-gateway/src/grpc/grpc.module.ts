@@ -12,7 +12,7 @@ import { AuthGrpcService } from './auth.grpc.service';
         options: {
           package: 'auth',
           protoPath: join(__dirname, '../../../../proto/auth.proto'),
-          url: 'localhost:50051',
+          url: process.env.USER_SERVICE_GRPC_URL || 'localhost:50051',
         },
       },
     ]),
