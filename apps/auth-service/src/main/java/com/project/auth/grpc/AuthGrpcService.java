@@ -146,14 +146,12 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
                 return;
             }
 
-            // Find user
-            User user = userRepository
-                    .findByEmail(request.getEmail())
-                    .orElse(null);
+            // Find user without converting Optional to null
+            var userOptional = userRepository.findByEmail(request.getEmail());
 
             // Invalid credentials
-            if (user == null ||
-                    !user.getPassword().equals(request.getPassword())) {
+            if (userOptional.isEmpty() ||
+                    !userOptional.get().getPassword().equals(request.getPassword())) {
 
                 responseObserver.onError(
                         Status.UNAUTHENTICATED
@@ -162,6 +160,8 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
                 );
                 return;
             }
+
+            User user = userOptional.get();
 
             // Generate session token
             String sessionToken = UUID.randomUUID().toString();
