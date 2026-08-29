@@ -7,6 +7,13 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@grpc/grpc-js':
+        specifier: ^1.14.4
+        version: 1.14.4
+      '@grpc/proto-loader':
+        specifier: ^0.8.1
+        version: 0.8.1
     devDependencies:
       prettier:
         specifier: 3.9.6

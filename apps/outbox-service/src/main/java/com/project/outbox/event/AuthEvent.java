@@ -1,4 +1,4 @@
-package com.project.auth.kafka;
+package com.project.outbox.event;
 
 import java.time.Instant;
 
@@ -9,21 +9,18 @@ public class AuthEvent {
     private String email;
     private Instant timestamp;
     private String source;
-    private String version;
 
     public AuthEvent(
             String eventType,
             Long userId,
             String email,
             Instant timestamp,
-            String source,
-            String version) {
+            String source) {
         this.eventType = eventType;
         this.userId = userId;
         this.email = email;
         this.timestamp = timestamp;
         this.source = source;
-        this.version = version;
     }
 
     public String getEventType() {
@@ -44,9 +41,5 @@ public class AuthEvent {
 
     public String getSource() {
         return source;
-    }
-
-    public String getVersion() {
-        return version;
     }
 }

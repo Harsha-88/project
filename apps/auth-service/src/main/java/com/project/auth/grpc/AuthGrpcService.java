@@ -5,8 +5,6 @@ import auth.AuthServiceGrpc;
 import com.project.auth.entity.User;
 import com.project.auth.repository.UserRepository;
 import com.project.auth.session.SessionService;
-import com.project.auth.kafka.AuthEvent;
-import com.project.auth.kafka.AuthEventProducer;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
@@ -24,15 +22,12 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
 
     private final UserRepository userRepository;
     private final SessionService sessionService;
-    private final AuthEventProducer authEventProducer;
 
     public AuthGrpcService(
             UserRepository userRepository,
-            AuthEventProducer authEventProducer,
             SessionService sessionService) {
 
         this.userRepository = userRepository;
-        this.authEventProducer = authEventProducer;
         this.sessionService = sessionService;
     }
 
@@ -79,17 +74,6 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
 
             userRepository.save(user);
 
-            // Publish signup event
-            authEventProducer.publish(
-                    new AuthEvent(
-                            "USER_SIGNUP_SUCCESS",
-                            user.getId(),
-                            user.getEmail(),
-                            Instant.now(),
-                            "auth-service",
-                            "v1"
-                    )
-            );
 
             // Successful response
             Auth.SignupResponse response =
@@ -172,17 +156,6 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
                     request.getEmail()
             );
 
-            // Publish login event
-            authEventProducer.publish(
-                    new AuthEvent(
-                            "USER_LOGIN_SUCCESS",
-                            user.getId(),
-                            user.getEmail(),
-                            Instant.now(),
-                            "auth-service",
-                            "v1"
-                    )
-            );
 
             // Successful response
             Auth.LoginResponse response =

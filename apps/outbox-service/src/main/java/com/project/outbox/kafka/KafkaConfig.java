@@ -1,4 +1,4 @@
-package com.project.auth.kafka;
+package com.project.outbox.kafka;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;

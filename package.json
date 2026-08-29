@@ -16,5 +16,9 @@
   "packageManager": "pnpm@11.23.0",
   "engines": {
     "node": ">=24"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.14.4",
+    "@grpc/proto-loader": "^0.8.1"
   }
 }
