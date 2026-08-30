@@ -1,25 +1,58 @@
-import { Args, Mutation, Query, Resolver, ObjectType, Field } from '@nestjs/graphql';
+import {
+  Args,
+  Field,
+  InputType,
+  Mutation,
+  ObjectType,
+  Query,
+  Resolver,
+} from '@nestjs/graphql';
+import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 import { AuthGrpcService } from '../grpc/auth.grpc.service';
 
-@ObjectType()
-class SignupResponse {
+@InputType()
+export class SignupInput {
   @Field()
-  success: boolean;
+  @IsEmail()
+  email!: string;
 
   @Field()
-  message: string;
+  @IsNotEmpty()
+  @MinLength(8)
+  password!: string;
+}
+
+@InputType()
+export class LoginInput {
+  @Field()
+  @IsEmail()
+  email!: string;
+
+  @Field()
+  @IsNotEmpty()
+  @MinLength(8)
+  password!: string;
 }
 
 @ObjectType()
-class LoginResponse {
+export class SignupResponse {
   @Field()
-  success: boolean;
+  success!: boolean;
 
   @Field()
-  message: string;
+  message!: string;
+}
+
+@ObjectType()
+export class LoginResponse {
+  @Field()
+  success!: boolean;
 
   @Field()
-  sessionToken: string;
+  message!: string;
+
+  @Field()
+  sessionToken!: string;
 }
 
 @Resolver()
@@ -35,23 +68,21 @@ export class AppResolver {
 
   @Mutation(() => SignupResponse)
   async signup(
-    @Args('email') email: string,
-    @Args('password') password: string,
+    @Args('input') input: SignupInput,
   ): Promise<SignupResponse> {
-    return this.authGrpcService.signup(email, password);
+    return this.authGrpcService.signup(
+      input.email,
+      input.password,
+    );
   }
 
   @Mutation(() => LoginResponse)
   async login(
-    @Args('email') email: string,
-    @Args('password') password: string,
+    @Args('input') input: LoginInput,
   ): Promise<LoginResponse> {
-    const response = await this.authGrpcService.login(email, password);
-
-    return {
-      success: response.success,
-      message: response.message,
-      sessionToken: response.sessionToken,
-    };
+    return this.authGrpcService.login(
+      input.email,
+      input.password,
+    );
   }
 }
