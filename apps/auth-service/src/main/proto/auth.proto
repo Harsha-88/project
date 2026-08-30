@@ -5,6 +5,7 @@ package auth;
 service AuthService {
   rpc Signup (SignupRequest) returns (SignupResponse);
   rpc Login (LoginRequest) returns (LoginResponse);
+  rpc GetSessionEmail (GetSessionEmailRequest) returns (GetSessionEmailResponse);
 }
 
 message SignupRequest {
@@ -26,4 +27,12 @@ message LoginResponse {
   bool success = 1;
   string message = 2;
   string sessionToken = 3;
+}
+
+message GetSessionEmailRequest {
+  string sessionToken = 1;
+}
+
+message GetSessionEmailResponse {
+  string email = 1;
 }

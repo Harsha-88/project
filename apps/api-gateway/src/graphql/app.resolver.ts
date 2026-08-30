@@ -9,6 +9,7 @@ import {
 } from '@nestjs/graphql';
 import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 import { AuthGrpcService } from '../grpc/auth.grpc.service';
+import { UserGrpcService } from '../grpc/user.grpc.service';
 
 @InputType()
 export class SignupInput {
@@ -55,15 +56,38 @@ export class LoginResponse {
   sessionToken!: string;
 }
 
+@ObjectType()
+export class UserProfile {
+  @Field()
+  id!: string;
+
+  @Field()
+  email!: string;
+
+  @Field()
+  createdAt!: string;
+}
+
 @Resolver()
 export class AppResolver {
   constructor(
     private readonly authGrpcService: AuthGrpcService,
+    private readonly userGrpcService: UserGrpcService,
   ) {}
 
   @Query(() => String)
   hello(): string {
     return 'Hello from API Gateway';
+  }
+
+  @Query(() => UserProfile)
+  async me(
+    @Args('sessionToken', { type: () => String }) sessionToken: string,
+  ): Promise<UserProfile> {
+    const email =
+      await this.authGrpcService.getSessionEmail(sessionToken);
+
+    return this.userGrpcService.findUserByEmail(email);
   }
 
   @Mutation(() => SignupResponse)

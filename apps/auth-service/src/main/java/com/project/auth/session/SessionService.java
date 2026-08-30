@@ -21,4 +21,8 @@ public class SessionService {
                 Duration.ofHours(24)
         );
     }
+
+    public String getSessionEmail(String sessionToken) {
+        return redisTemplate.opsForValue().get("session:" + sessionToken);
+    }
 }

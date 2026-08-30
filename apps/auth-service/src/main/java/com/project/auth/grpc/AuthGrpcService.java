@@ -149,6 +149,30 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
     }
 
     @Override
+    public void getSessionEmail(
+            Auth.GetSessionEmailRequest request,
+            io.grpc.stub.StreamObserver<Auth.GetSessionEmailResponse> responseObserver) {
+
+        String email = sessionService.getSessionEmail(request.getSessionToken());
+
+        if (email == null || email.isBlank()) {
+            responseObserver.onError(
+                    Status.UNAUTHENTICATED
+                            .withDescription("Invalid or expired session")
+                            .asRuntimeException()
+            );
+            return;
+        }
+
+        responseObserver.onNext(
+                Auth.GetSessionEmailResponse.newBuilder()
+                        .setEmail(email)
+                        .build()
+        );
+        responseObserver.onCompleted();
+    }
+
+    @Override
     public void login(
             Auth.LoginRequest request,
             StreamObserver<Auth.LoginResponse> responseObserver) {
