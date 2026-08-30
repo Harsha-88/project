@@ -5,10 +5,6 @@ import auth.AuthServiceGrpc;
 import com.project.auth.entity.User;
 import com.project.auth.repository.UserRepository;
 import com.project.auth.session.SessionService;
-import com.project.auth.outbox.OutboxEvent;
-import com.project.auth.outbox.OutboxEventRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
@@ -21,32 +17,18 @@ import java.util.UUID;
 @Service
 public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
 
-    private record AuthEventPayload(
-            String eventType,
-            Long userId,
-            String email,
-            Instant timestamp,
-            String source
-    ) {}
-
     private static final Logger logger =
             LoggerFactory.getLogger(AuthGrpcService.class);
 
     private final UserRepository userRepository;
     private final SessionService sessionService;
-    private final OutboxEventRepository outboxEventRepository;
-    private final ObjectMapper objectMapper;
 
     public AuthGrpcService(
             UserRepository userRepository,
-            SessionService sessionService,
-            OutboxEventRepository outboxEventRepository,
-            ObjectMapper objectMapper) {
+            SessionService sessionService) {
 
         this.userRepository = userRepository;
         this.sessionService = sessionService;
-        this.outboxEventRepository = outboxEventRepository;
-        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -91,32 +73,6 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
             );
 
             userRepository.save(user);
-
-            // Create outbox event after successful user creation
-            try {
-                String payload = objectMapper.writeValueAsString(
-                        new AuthEventPayload(
-                                "USER_SIGNUP_SUCCESS",
-                                user.getId(),
-                                user.getEmail(),
-                                Instant.now(),
-                                "auth-service"
-                        )
-                );
-
-                outboxEventRepository.save(
-                        new OutboxEvent(
-                                "USER_SIGNUP_SUCCESS",
-                                user.getId(),
-                                payload
-                        )
-                );
-            } catch (JsonProcessingException e) {
-                throw new IllegalStateException(
-                        "Failed to create signup outbox event",
-                        e
-                );
-            }
 
             // Successful response
             Auth.SignupResponse response =
