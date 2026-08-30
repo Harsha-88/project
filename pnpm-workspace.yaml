@@ -3,5 +3,9 @@ packages:
   - "packages/*"
 allowBuilds:
   '@apollo/protobufjs': true
+  '@prisma/engines': false
+  argon2: false
+  esbuild: false
+  prisma: false
   protobufjs: true
   unrs-resolver: false
