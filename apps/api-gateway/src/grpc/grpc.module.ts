@@ -28,6 +28,11 @@ const clientCert = readFileSync(
           package: 'auth',
           protoPath: join(__dirname, '../../../../proto/auth.proto'),
           url: process.env.AUTH_SERVICE_GRPC_URL || '127.0.0.1:50051',
+          credentials: ChannelCredentials.createSsl(
+            ca,
+            clientKey,
+            clientCert,
+          ),
         },
       },
       {

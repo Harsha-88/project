@@ -1,5 +1,6 @@
 package com.project.auth.grpc;
 
+import org.springframework.transaction.annotation.Transactional;
 import auth.Auth;
 import auth.AuthServiceGrpc;
 import com.project.auth.entity.User;
@@ -50,6 +51,7 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
     }
 
     @Override
+    @Transactional
     public void signup(
             Auth.SignupRequest request,
             StreamObserver<Auth.SignupResponse> responseObserver) {

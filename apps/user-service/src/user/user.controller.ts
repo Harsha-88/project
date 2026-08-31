@@ -18,15 +18,12 @@ export class UserController {
   @GrpcMethod('UserService', 'CreateUser')
   async createUser(request: CreateUserRequest): Promise<UserResponse> {
     try {
-      console.log('CREATE USER REQUEST:', request);
       const result = await this.userService.createUser(
         request.email,
         request.password,
       );
-      console.log('CREATE USER RESULT:', result);
       return result;
     } catch (error) {
-      console.error('CREATE USER ERROR:', error);
       throw error;
     }
   }
@@ -38,7 +35,6 @@ export class UserController {
     try {
       return await this.userService.findUserByEmail(request.email);
     } catch (error) {
-      console.error('FIND USER ERROR:', error);
       throw error;
     }
   }

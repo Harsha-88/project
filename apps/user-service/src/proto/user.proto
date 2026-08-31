@@ -19,6 +19,5 @@ message FindUserByEmailRequest {
 message UserResponse {
   string id = 1;
   string email = 2;
-  string password = 3;
   string createdAt = 4;
 }

@@ -1,7 +1,6 @@
 package com.project.outbox.entity;
 
 import jakarta.persistence.*;
-
 import java.time.Instant;
 
 @Entity
@@ -9,37 +8,30 @@ import java.time.Instant;
 public class OutboxEvent {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id")
+    private String id;
 
-    @Column(name = "event_type", nullable = false)
+    @Column(name = "eventType", nullable = false)
     private String eventType;
 
-    @Column(name = "aggregate_id")
-    private Long aggregateId;
-
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(name = "payload", nullable = false, columnDefinition = "jsonb")
     private String payload;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "createdAt", nullable = false)
     private Instant createdAt;
 
-    @Column(nullable = false)
-    private boolean published;
+    @Column(name = "publishedAt")
+    private Instant publishedAt;
 
     public OutboxEvent() {
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
     public String getEventType() {
         return eventType;
-    }
-
-    public Long getAggregateId() {
-        return aggregateId;
     }
 
     public String getPayload() {
@@ -50,11 +42,11 @@ public class OutboxEvent {
         return createdAt;
     }
 
-    public boolean isPublished() {
-        return published;
+    public Instant getPublishedAt() {
+        return publishedAt;
     }
 
-    public void setPublished(boolean published) {
-        this.published = published;
+    public void setPublishedAt(Instant publishedAt) {
+        this.publishedAt = publishedAt;
     }
 }
