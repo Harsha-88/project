@@ -24,11 +24,11 @@ export interface UserProfile {
 interface UserServiceClient {
   createUser(
     data: CreateUserRequest,
-  ): Observable<UserProfile & { password: string }>;
+  ): Observable<UserProfile>;
 
   findUserByEmail(
     data: FindUserByEmailRequest,
-  ): Observable<UserProfile & { password: string }>;
+  ): Observable<UserProfile>;
 }
 
 @Injectable()

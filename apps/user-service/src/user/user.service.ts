@@ -7,7 +7,6 @@ import { PrismaService } from '../prisma/prisma.service';
 export interface UserResponse {
   id: string;
   email: string;
-  password: string;
   createdAt: string;
 }
 
@@ -60,7 +59,6 @@ export class UserService {
       return {
         id: result.id,
         email: result.email,
-        password: result.password,
         createdAt: result.createdAt.toISOString(),
       };
     } catch (error: unknown) {
@@ -95,7 +93,6 @@ export class UserService {
     return {
       id: user.id,
       email: user.email,
-      password: user.password,
       createdAt: user.createdAt.toISOString(),
     };
   }
