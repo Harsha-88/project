@@ -6,17 +6,25 @@ import { ChannelCredentials } from '@grpc/grpc-js';
 import { AuthGrpcService } from './auth.grpc.service';
 import { UserGrpcService } from './user.grpc.service';
 
-const ca = readFileSync(
-  join(process.cwd(), '../../infrastructure/certs/ca/ca.crt'),
-);
+let ca: Buffer;
+let clientKey: Buffer;
+let clientCert: Buffer;
 
-const clientKey = readFileSync(
-  join(process.cwd(), '../../infrastructure/certs/api-gateway/client.key'),
-);
+try {
+  const certDir = process.env.CERT_DIR
+    ? join(process.env.CERT_DIR)
+    : join(__dirname, '../../../../infrastructure/certs');
 
-const clientCert = readFileSync(
-  join(process.cwd(), '../../infrastructure/certs/api-gateway/client.crt'),
-);
+  ca = readFileSync(join(certDir, 'ca/ca.crt'));
+  clientKey = readFileSync(join(certDir, 'api-gateway/client.key'));
+  clientCert = readFileSync(join(certDir, 'api-gateway/client.crt'));
+} catch (error) {
+  throw new Error(
+    `Failed to load gRPC certificates. Check CERT_DIR or certificate files. ${
+      error instanceof Error ? error.message : String(error)
+    }`,
+  );
+}
 
 @Module({
   imports: [

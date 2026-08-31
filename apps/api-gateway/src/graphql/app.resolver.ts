@@ -35,6 +35,13 @@ export class LoginInput {
   password!: string;
 }
 
+@InputType()
+export class SessionInput {
+  @Field()
+  @IsNotEmpty()
+  sessionToken!: string;
+}
+
 @ObjectType()
 export class SignupResponse {
   @Field()
@@ -82,8 +89,9 @@ export class AppResolver {
 
   @Query(() => UserProfile)
   async me(
-    @Args('sessionToken', { type: () => String }) sessionToken: string,
+    @Args('input') input: SessionInput,
   ): Promise<UserProfile> {
+    const sessionToken = input.sessionToken;
     const email =
       await this.authGrpcService.getSessionEmail(sessionToken);
 

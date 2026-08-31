@@ -8,17 +8,25 @@ import { ServerCredentials } from '@grpc/grpc-js';
 import { UserModule } from './user/user.module';
 
 async function bootstrap(): Promise<void> {
-  const ca = readFileSync(
-    join(process.cwd(), '../../infrastructure/certs/ca/ca.crt'),
-  );
+  let ca: Buffer;
+  let serverKey: Buffer;
+  let serverCert: Buffer;
 
-  const serverKey = readFileSync(
-    join(process.cwd(), '../../infrastructure/certs/user-service/server.key'),
-  );
+  try {
+    const certDir = process.env.CERT_DIR
+      ? join(process.env.CERT_DIR)
+      : join(__dirname, '../../../../infrastructure/certs');
 
-  const serverCert = readFileSync(
-    join(process.cwd(), '../../infrastructure/certs/user-service/server.crt'),
-  );
+    ca = readFileSync(join(certDir, 'ca/ca.crt'));
+    serverKey = readFileSync(join(certDir, 'user-service/server.key'));
+    serverCert = readFileSync(join(certDir, 'user-service/server.crt'));
+  } catch (error) {
+    throw new Error(
+      `Failed to load gRPC certificates. Check CERT_DIR or certificate files. ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+  }
 
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     UserModule,
