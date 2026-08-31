@@ -33,44 +33,58 @@ export class OutboxRelayService implements OnModuleInit, OnModuleDestroy {
 
   @Cron(CronExpression.EVERY_5_SECONDS)
   async relayPendingEvents(): Promise<void> {
-    const events = await this.prisma.outboxEvent.findMany({
-      where: {
-        publishedAt: null,
-      },
-      orderBy: {
-        createdAt: 'asc',
-      },
-    });
+    const lockResult = await this.prisma.$queryRaw<
+      { acquired: boolean }[]
+    >`SELECT pg_try_advisory_lock(987654321) AS acquired`;
 
-    for (const event of events) {
-      try {
-        await this.producer.send({
-          topic: 'auth-events',
-          messages: [
-            {
-              key: event.id,
-              value: JSON.stringify(event.payload),
+    if (!lockResult[0]?.acquired) {
+      return;
+    }
+
+    try {
+      const events = await this.prisma.outboxEvent.findMany({
+        where: {
+          publishedAt: null,
+        },
+        orderBy: {
+          createdAt: 'asc',
+        },
+      });
+
+      for (const event of events) {
+        try {
+          await this.producer.send({
+            topic: 'auth-events',
+            messages: [
+              {
+                key: event.id,
+                value: JSON.stringify(event.payload),
+              },
+            ],
+          });
+
+          await this.prisma.outboxEvent.update({
+            where: {
+              id: event.id,
             },
-          ],
-        });
+            data: {
+              publishedAt: new Date(),
+            },
+          });
 
-        await this.prisma.outboxEvent.update({
-          where: {
-            id: event.id,
-          },
-          data: {
-            publishedAt: new Date(),
-          },
-        });
-
-        this.logger.log(`Published outbox event ${event.id}`);
-      } catch (error: unknown) {
-        this.logger.error(
-          `Failed to publish outbox event ${event.id}`,
-          error,
-        );
-        break;
+          this.logger.log(`Published outbox event ${event.id}`);
+        } catch (error: unknown) {
+          this.logger.error(
+            `Failed to publish outbox event ${event.id}`,
+            error,
+          );
+          break;
+        }
       }
+    } finally {
+      await this.prisma.$executeRaw`
+        SELECT pg_advisory_unlock(987654321)
+      `;
     }
   }
 
