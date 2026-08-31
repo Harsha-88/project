@@ -23,7 +23,7 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
 
     private record AuthEventPayload(
             String eventType,
-            Long userId,
+            String userId,
             String email,
             Instant timestamp,
             String source
@@ -107,7 +107,6 @@ public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
                 outboxEventRepository.save(
                         new OutboxEvent(
                                 "USER_SIGNUP_SUCCESS",
-                                user.getId(),
                                 payload
                         )
                 );

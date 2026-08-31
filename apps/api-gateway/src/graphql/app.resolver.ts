@@ -94,10 +94,15 @@ export class AppResolver {
   async signup(
     @Args('input') input: SignupInput,
   ): Promise<SignupResponse> {
-    return this.authGrpcService.signup(
+    const user = await this.userGrpcService.createUser(
       input.email,
       input.password,
     );
+
+    return {
+      success: true,
+      message: `Signup successful for ${user.email}`,
+    };
   }
 
   @Mutation(() => LoginResponse)

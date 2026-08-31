@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { status } from '@grpc/grpc-js';
-import { PrismaService } from '../prisma/prisma.service';
 import * as argon2 from 'argon2';
+import { PrismaService } from '../prisma/prisma.service';
 
 export interface UserResponse {
   id: string;
@@ -15,7 +15,10 @@ export interface UserResponse {
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createUser(email: string, password: string): Promise<UserResponse> {
+  async createUser(
+    email: string,
+    password: string,
+  ): Promise<UserResponse> {
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
     });
@@ -31,19 +34,50 @@ export class UserService {
       type: argon2.argon2id,
     });
 
-    const user = await this.prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-      },
-    });
+    try {
+      const result = await this.prisma.$transaction(async (tx) => {
+        const user = await tx.user.create({
+          data: {
+            email,
+            password: hashedPassword,
+          },
+        });
 
-    return {
-      id: user.id,
-      email: user.email,
-      password: user.password,
-      createdAt: user.createdAt.toISOString(),
-    };
+        await tx.outboxEvent.create({
+          data: {
+            eventType: 'USER_CREATED',
+            payload: {
+              userId: user.id,
+              email: user.email,
+              timestamp: new Date().toISOString(),
+            },
+          },
+        });
+
+        return user;
+      });
+
+      return {
+        id: result.id,
+        email: result.email,
+        password: result.password,
+        createdAt: result.createdAt.toISOString(),
+      };
+    } catch (error: unknown) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        error.code === 'P2002'
+      ) {
+        throw new RpcException({
+          code: status.ALREADY_EXISTS,
+          message: 'User already exists',
+        });
+      }
+
+      throw error;
+    }
   }
 
   async findUserByEmail(email: string): Promise<UserResponse> {

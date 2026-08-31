@@ -6,6 +6,11 @@ import {
 import type { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom, Observable } from 'rxjs';
 
+interface CreateUserRequest {
+  email: string;
+  password: string;
+}
+
 interface FindUserByEmailRequest {
   email: string;
 }
@@ -17,6 +22,10 @@ export interface UserProfile {
 }
 
 interface UserServiceClient {
+  createUser(
+    data: CreateUserRequest,
+  ): Observable<UserProfile & { password: string }>;
+
   findUserByEmail(
     data: FindUserByEmailRequest,
   ): Observable<UserProfile & { password: string }>;
@@ -34,6 +43,21 @@ export class UserGrpcService implements OnModuleInit {
   onModuleInit(): void {
     this.userService =
       this.client.getService<UserServiceClient>('UserService');
+  }
+
+  async createUser(
+    email: string,
+    password: string,
+  ): Promise<UserProfile> {
+    const user = await firstValueFrom(
+      this.userService.createUser({ email, password }),
+    );
+
+    return {
+      id: user.id,
+      email: user.email,
+      createdAt: user.createdAt,
+    };
   }
 
   async findUserByEmail(email: string): Promise<UserProfile> {

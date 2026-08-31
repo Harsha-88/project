@@ -1,30 +1,36 @@
 package com.project.auth.entity;
 
 import jakarta.persistence.*;
+import java.time.Instant;
 
 @Entity
 @Table(name = "users")
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id", nullable = false)
+    private String id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "createdAt", nullable = false)
+    private Instant createdAt;
 
     public User() {
     }
 
     public User(String email, String password) {
+        this.id = java.util.UUID.randomUUID().toString();
         this.email = email;
         this.password = password;
+        this.createdAt = Instant.now();
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
@@ -42,5 +48,9 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 }
