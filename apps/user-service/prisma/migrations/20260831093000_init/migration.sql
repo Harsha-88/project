@@ -1,6 +1,7 @@
--- The legacy tables have already been renamed by the previous
--- attempt, and their data is preserved.
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "public";
 
+-- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -10,8 +11,7 @@ CREATE TABLE "users" (
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
 
-CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
-
+-- CreateTable
 CREATE TABLE "outbox_events" (
     "id" TEXT NOT NULL,
     "eventType" TEXT NOT NULL,
@@ -21,3 +21,6 @@ CREATE TABLE "outbox_events" (
 
     CONSTRAINT "outbox_events_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
